@@ -3,130 +3,114 @@ import { Scene } from './components/Scene'
 import { Header } from './components/ui/Header'
 import { Sidebar } from './components/ui/Sidebar'
 import { DetailPanel } from './components/ui/DetailPanel'
+import { ModeBanner } from './components/ui/ModeBanner'
 import { useOrchestrator } from './store/useOrchestrator'
 import { usePrayerTime } from './store/usePrayerTime'
 import { fetchJiraIssues, mapJiraToEnergy } from './lib/jiraAdapter'
 import type { GlobalMode } from './lib/types'
 
-const LUNCH_SLOTS = [
-  'lunch-bar-1',
-  'lunch-bar-2',
-  'lunch-bar-3',
-  'lunch-bar-4',
-  'lunch-bar-5',
-  'lunch-bar-6',
-]
+const JIRA_POLL_MS = 5 * 60_000
+const SNAP_MS = 5000
 
-const SAJADAH_ORDER = ['sajadah-1', 'sajadah-2', 'sajadah-3', 'sajadah-4', 'sajadah-5', 'sajadah-6']
-const COFFEE_SLOTS = [
-  'coffee-bar-1',
-  'coffee-bar-2',
-  'coffee-bar-3',
-  'coffee-bar-4',
-  'coffee-bar-5',
-  'coffee-bar-6',
-]
+const COFFEE_SLOTS = 6
 
 export default function App() {
-  const tickEnergy = useOrchestrator((s) => s.tickEnergy)
-  const resetAfterLunch = useOrchestrator((s) => s.resetAfterLunch)
   const setTeam = useOrchestrator((s) => s.setTeam)
-  const setJiraLoading = useOrchestrator((s) => s.setJiraLoading)
+  const setJiraStatus = useOrchestrator((s) => s.setJiraStatus)
   const setActivity = useOrchestrator((s) => s.setActivity)
+  const resetEveryone = useOrchestrator((s) => s.resetEveryone)
 
   const globalMode = usePrayerTime((s) => s.globalMode)
-  const tickPrayer = usePrayerTime((s) => s.tick)
-  const fetchTimings = usePrayerTime((s) => s.fetchTimings)
-  const simTime = usePrayerTime((s) => s.simTime)
-
   const prevMode = useRef<GlobalMode>('normal')
-  const lunchResetDone = useRef(false)
 
   const refreshJira = useCallback(async () => {
-    setJiraLoading(true)
+    setJiraStatus(true)
     try {
       const issues = await fetchJiraIssues()
-      const { team, } = useOrchestrator.getState()
-      const next = mapJiraToEnergy(team, issues, { forceNormal: false })
-      setTeam(next)
-      setJiraLoading(false, null)
+      const { team, globalMode: mode } = { ...useOrchestrator.getState(), globalMode }
+      const forceNormal = mode !== 'normal'
+      setTeam(mapJiraToEnergy(team, issues, { forceNormal }))
+      setJiraStatus(false, null)
     } catch (e) {
-      setJiraLoading(false, e instanceof Error ? e.message : 'Jira error')
+      setJiraStatus(false, e instanceof Error ? e.message : 'Jira error')
     }
-  }, [setJiraLoading, setTeam])
+  }, [setJiraStatus, setTeam, globalMode])
 
-  // Poll Jira tiap 5 menit
+  // Poll Jira tiap 5 menit + sekali di awal
   useEffect(() => {
     void refreshJira()
-    const id = setInterval(() => void refreshJira(), 5 * 60_000)
+    const id = setInterval(() => void refreshJira(), JIRA_POLL_MS)
     return () => clearInterval(id)
-  }, [refreshJira])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  // Energy tick tiap 5 detik
+  // Jam simulasi + energy tick
   useEffect(() => {
-    const id = setInterval(() => tickEnergy(), 5000)
+    let last = performance.now()
+    const id = setInterval(() => {
+      const now = performance.now()
+      const dt = (now - last) / 1000
+      last = now
+      usePrayerTime.getState().tick(dt)
+      useOrchestrator.getState().tickEnergy(dt)
+    }, SNAP_MS)
     return () => clearInterval(id)
-  }, [tickEnergy])
+  }, [])
 
-  // Prayer clock
+  // Ambil timings Aladhan (cache localStorage per hari, fallback file)
   useEffect(() => {
-    void fetchTimings()
-    const id = setInterval(() => tickPrayer(), 10_000)
-    return () => clearInterval(id)
-  }, [fetchTimings, tickPrayer])
+    void usePrayerTime.getState().fetchTimings()
+  }, [])
 
-  // React ke perubahan globalMode: ubah lokasi/aktivitas tim
+  // Transisi globalMode -> pindahkan tim
   useEffect(() => {
     if (globalMode === prevMode.current) return
     const prev = prevMode.current
     prevMode.current = globalMode
-    const { team } = useOrchestrator.getState()
-    const muslims = team.filter((m) => m.religion === 'islam')
-    const nonMuslims = team.filter((m) => m.religion === 'non-muslim')
+
+    const state = useOrchestrator.getState()
+    const muslims = state.team.filter((m) => m.religion === 'islam')
 
     if (globalMode === 'pray' || globalMode === 'pray-mini') {
-      lunchResetDone.current = false
-      muslims.forEach((m, i) => {
-        setActivity(m.id, 'praying', SAJADAH_ORDER[i % SAJADAH_ORDER.length])
-      })
-      nonMuslims.forEach((m) => setActivity(m.id, 'meeting', 'vip-wait'))
+      // Muslim dipindah & dirender PrayerGroup; non-muslim menunggu sopan di VIP
+      const nonMuslim = state.team.filter((m) => m.religion === 'non-muslim')
+      for (const m of nonMuslim) setActivity(m.id, 'meeting', 'vip-wait')
+      for (const m of muslims) setActivity(m.id, 'praying', 'sajadah-1')
     } else if (globalMode === 'lunch') {
-      team.forEach((m, i) => {
-        setActivity(m.id, 'eating', LUNCH_SLOTS[i % LUNCH_SLOTS.length])
+      state.team.forEach((m, i) => {
+        const zone = m.religion === 'non-muslim' ? 'vip-wait' : 'lunch-bar-' + ((i % COFFEE_SLOTS) + 1)
+        setActivity(m.id, m.religion === 'non-muslim' ? 'meeting' : 'eating', zone)
       })
-    } else if (globalMode === 'normal' && prev === 'lunch') {
-      if (!lunchResetDone.current) {
-        lunchResetDone.current = true
-        resetAfterLunch()
-      }
     } else if (globalMode === 'normal' && (prev === 'pray' || prev === 'pray-mini')) {
-      muslims.forEach((m) => setActivity(m.id, 'working', m.deskZone))
-      nonMuslims.forEach((m) => setActivity(m.id, 'meeting', m.deskZone))
+      // Balik ke desk, sebagian ngopi
+      const state2 = useOrchestrator.getState()
+      state2.team.forEach((m) => {
+        if (m.religion === 'non-muslim') {
+          setActivity(m.id, 'meeting', m.deskZone)
+        } else {
+          setActivity(m.id, 'working', m.deskZone)
+        }
+      })
+      void refreshJira()
+    } else if (globalMode === 'normal' && prev === 'lunch') {
+      // 13:00 reset energy 100 balik desk
+      resetEveryone('full')
       void refreshJira()
     }
-    if (globalMode === 'normal') {
-      void COFFEE_SLOTS
-    }
-  }, [globalMode, setActivity, resetAfterLunch, refreshJira])
-
-  // Auto 13:00 reset
-  useEffect(() => {
-    const h = Number(
-      new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Asia/Jakarta',
-        hour: '2-digit',
-        hour12: false,
-      }).format(simTime),
-    )
-    void h
-  }, [simTime])
+  }, [globalMode, setActivity, resetEveryone, refreshJira])
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full overflow-hidden">
       <Scene />
       <Header onRefreshJira={() => void refreshJira()} />
+      <ModeBanner />
       <Sidebar />
-      <DetailPanel />
+      <DetailPanel onRefreshJira={() => void refreshJira()} />
+
+      {/* strip tim versi mobile */}
+      <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-10 p-2 md:hidden">
+        {null}
+      </div>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import zonesRaw from '../data/zones.json'
 import type { ZoneMap } from './types'
 
-export const ZONES = zonesRaw as ZoneMap
+export const ZONES = zonesRaw as unknown as ZoneMap
 
 export type Vec3 = [number, number, number]
 

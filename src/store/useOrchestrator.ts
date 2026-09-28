@@ -28,7 +28,7 @@ interface OrchestratorState {
 
 const cloneTeam = () => (teamData as TeamMember[]).map((m) => ({ ...m }))
 
-export const useOrchestrator = create<OrchestratorState>((set, get) => ({
+export const useOrchestrator = create<OrchestratorState>((set) => ({
   team: cloneTeam(),
   selectedId: null,
   cameraPreset: 'office',
