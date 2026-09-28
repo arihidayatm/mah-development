@@ -1,0 +1,173 @@
+[
+  {
+    "id": "ari",
+    "name": "Ari",
+    "role": "Project Leader",
+    "religion": "islam",
+    "status": "working",
+    "energy": 92,
+    "currentTask": "Review sprint MAH-101",
+    "progress": 62,
+    "jiraKey": "MAH-101",
+    "location": "desk-vip",
+    "targetZone": "desk-vip",
+    "deskZone": "desk-vip",
+    "colors": { "skin": "#F0C9A8", "top": "#F2E3C6", "hair": "#2E2622" },
+    "appearance": {
+      "hairStyle": "neat",
+      "accessory": "glasses",
+      "hat": "none",
+      "isLeader": true
+    }
+  },
+  {
+    "id": "bima",
+    "name": "Bima",
+    "role": "Backend Coder",
+    "religion": "islam",
+    "status": "working",
+    "energy": 78,
+    "currentTask": "Fix auth token refresh",
+    "progress": 40,
+    "jiraKey": "MAH-102",
+    "location": "desk-A2",
+    "targetZone": "desk-A2",
+    "deskZone": "desk-A2",
+    "colors": { "skin": "#E7B589", "top": "#9AA0A6", "hair": "#1F1A17" },
+    "appearance": {
+      "hairStyle": "spiky",
+      "accessory": "headphone",
+      "hat": "none",
+      "isLeader": false
+    }
+  },
+  {
+    "id": "sasa",
+    "name": "Sasa",
+    "role": "Frontend",
+    "religion": "islam",
+    "status": "working",
+    "energy": 84,
+    "currentTask": "Dashboard responsive",
+    "progress": 71,
+    "jiraKey": "MAH-103",
+    "location": "desk-A3",
+    "targetZone": "desk-A3",
+    "deskZone": "desk-A3",
+    "colors": { "skin": "#F5D3B0", "top": "#B8E6D0", "hair": "#3A2A20" },
+    "appearance": {
+      "hairStyle": "bob",
+      "accessory": "none",
+      "hat": "none",
+      "isLeader": false
+    }
+  },
+  {
+    "id": "ucup",
+    "name": "Ucup",
+    "role": "UIUX Mobile",
+    "religion": "islam",
+    "status": "working",
+    "energy": 66,
+    "currentTask": "Prototype onboarding",
+    "progress": 55,
+    "jiraKey": "MAH-104",
+    "location": "desk-A4",
+    "targetZone": "desk-A4",
+    "deskZone": "desk-A4",
+    "colors": { "skin": "#E9B487", "top": "#E4B85B", "hair": "#241C18" },
+    "appearance": {
+      "hairStyle": "cap",
+      "accessory": "none",
+      "hat": "cap",
+      "hatColor": "#C98B3A",
+      "isLeader": false
+    }
+  },
+  {
+    "id": "hendri",
+    "name": "Hendri",
+    "role": "IT Support Network",
+    "religion": "islam",
+    "status": "working",
+    "energy": 88,
+    "currentTask": "Monitor uptime server",
+    "progress": 30,
+    "jiraKey": "MAH-105",
+    "location": "desk-server",
+    "targetZone": "desk-server",
+    "deskZone": "desk-server",
+    "colors": { "skin": "#E3AE80", "top": "#5B9BD5", "hair": "#211A15" },
+    "appearance": {
+      "hairStyle": "cap",
+      "accessory": "none",
+      "hat": "cap",
+      "hatColor": "#2F6FA8",
+      "isLeader": false
+    }
+  },
+  {
+    "id": "nanda",
+    "name": "Nanda",
+    "role": "Security Auditor",
+    "religion": "islam",
+    "status": "working",
+    "energy": 74,
+    "currentTask": "Audit dependency risk",
+    "progress": 48,
+    "jiraKey": "MAH-106",
+    "location": "desk-A6",
+    "targetZone": "desk-A6",
+    "deskZone": "desk-A6",
+    "colors": { "skin": "#DCA87C", "top": "#2C2C33", "hair": "#171310" },
+    "appearance": {
+      "hairStyle": "neat",
+      "accessory": "glasses",
+      "hat": "none",
+      "isLeader": false
+    }
+  },
+  {
+    "id": "vina",
+    "name": "Vina",
+    "role": "Administrasi Finance",
+    "religion": "islam",
+    "status": "working",
+    "energy": 90,
+    "currentTask": "Rekap invoice vendor",
+    "progress": 80,
+    "jiraKey": "MAH-107",
+    "location": "desk-admin",
+    "targetZone": "desk-admin",
+    "deskZone": "desk-admin",
+    "colors": { "skin": "#F3CFAC", "top": "#F3C3A8", "hair": "#4A3428" },
+    "appearance": {
+      "hairStyle": "hijab",
+      "hijabColor": "#9CAF94",
+      "accessory": "round-glasses",
+      "hat": "none",
+      "isLeader": false
+    }
+  },
+  {
+    "id": "budi",
+    "name": "Pak Budi",
+    "role": "Client",
+    "religion": "non-muslim",
+    "status": "meeting",
+    "energy": 100,
+    "currentTask": "Menunggu demo aplikasi",
+    "progress": 0,
+    "jiraKey": "",
+    "location": "santai-sofa-1",
+    "targetZone": "santai-sofa-1",
+    "deskZone": "santai-sofa-1",
+    "colors": { "skin": "#E8B98E", "top": "#23345C", "hair": "#1A140F" },
+    "appearance": {
+      "hairStyle": "client",
+      "accessory": "none",
+      "hat": "none",
+      "isLeader": false
+    }
+  }
+]

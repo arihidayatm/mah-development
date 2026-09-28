@@ -1,0 +1,40 @@
+{
+  "issues": [
+    {
+      "key": "MAH-102",
+      "summary": "Auth token refresh loop di production",
+      "status": "Blocked",
+      "assignee": "bima@mah.dev",
+      "updated": "__BLOCKED_2_5H__",
+      "statusChangeDate": "__BLOCKED_2_5H__",
+      "timeSpentHours": 6
+    },
+    {
+      "key": "MAH-103",
+      "summary": "Dashboard responsive tablet",
+      "status": "In Progress",
+      "assignee": "sasa@mah.dev",
+      "updated": "__INPROG_5H__",
+      "statusChangeDate": "__INPROG_5H__",
+      "timeSpentHours": 5
+    },
+    {
+      "key": "MAH-107",
+      "summary": "Rekap invoice vendor Q3",
+      "status": "Done",
+      "assignee": "vina@mah.dev",
+      "updated": "__DONE_TODAY__",
+      "statusChangeDate": "__DONE_TODAY__",
+      "timeSpentHours": 3
+    },
+    {
+      "key": "MAH-108",
+      "summary": "Setup CI runner staging",
+      "status": "Blocked",
+      "assignee": "riko@mah.dev",
+      "updated": "__BLOCKED_0_5H__",
+      "statusChangeDate": "__BLOCKED_0_5H__",
+      "timeSpentHours": 1
+    }
+  ]
+}
