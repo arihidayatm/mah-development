@@ -6,19 +6,14 @@
     "religion": "islam",
     "status": "working",
     "energy": 92,
-    "currentTask": "Review sprint MAH-101",
+    "currentTask": "Review sprint board MAH-101",
     "progress": 62,
     "jiraKey": "MAH-101",
     "location": "desk-vip",
     "targetZone": "desk-vip",
     "deskZone": "desk-vip",
     "colors": { "skin": "#F0C9A8", "top": "#F2E3C6", "hair": "#2E2622" },
-    "appearance": {
-      "hairStyle": "neat",
-      "accessory": "glasses",
-      "hat": "none",
-      "isLeader": true
-    }
+    "appearance": { "hairStyle": "neat", "accessory": "glasses", "isLeader": true }
   },
   {
     "id": "bima",
@@ -34,12 +29,7 @@
     "targetZone": "desk-A2",
     "deskZone": "desk-A2",
     "colors": { "skin": "#E7B589", "top": "#9AA0A6", "hair": "#1F1A17" },
-    "appearance": {
-      "hairStyle": "spiky",
-      "accessory": "headphone",
-      "hat": "none",
-      "isLeader": false
-    }
+    "appearance": { "hairStyle": "spiky", "accessory": "headphone", "isLeader": false }
   },
   {
     "id": "sasa",
@@ -48,19 +38,14 @@
     "religion": "islam",
     "status": "working",
     "energy": 84,
-    "currentTask": "Dashboard responsive",
+    "currentTask": "Dashboard responsive tablet",
     "progress": 71,
     "jiraKey": "MAH-103",
     "location": "desk-A3",
     "targetZone": "desk-A3",
     "deskZone": "desk-A3",
     "colors": { "skin": "#F5D3B0", "top": "#B8E6D0", "hair": "#3A2A20" },
-    "appearance": {
-      "hairStyle": "bob",
-      "accessory": "none",
-      "hat": "none",
-      "isLeader": false
-    }
+    "appearance": { "hairStyle": "bob", "accessory": "none", "isLeader": false }
   },
   {
     "id": "ucup",
@@ -69,7 +54,7 @@
     "religion": "islam",
     "status": "working",
     "energy": 66,
-    "currentTask": "Prototype onboarding",
+    "currentTask": "Prototype onboarding flow",
     "progress": 55,
     "jiraKey": "MAH-104",
     "location": "desk-A4",
@@ -79,7 +64,6 @@
     "appearance": {
       "hairStyle": "cap",
       "accessory": "none",
-      "hat": "cap",
       "hatColor": "#C98B3A",
       "isLeader": false
     }
@@ -101,7 +85,6 @@
     "appearance": {
       "hairStyle": "cap",
       "accessory": "none",
-      "hat": "cap",
       "hatColor": "#2F6FA8",
       "isLeader": false
     }
@@ -120,12 +103,7 @@
     "targetZone": "desk-A6",
     "deskZone": "desk-A6",
     "colors": { "skin": "#DCA87C", "top": "#2C2C33", "hair": "#171310" },
-    "appearance": {
-      "hairStyle": "neat",
-      "accessory": "glasses",
-      "hat": "none",
-      "isLeader": false
-    }
+    "appearance": { "hairStyle": "neat", "accessory": "glasses", "isLeader": false }
   },
   {
     "id": "vina",
@@ -134,7 +112,7 @@
     "religion": "islam",
     "status": "working",
     "energy": 90,
-    "currentTask": "Rekap invoice vendor",
+    "currentTask": "Rekap invoice vendor Q3",
     "progress": 80,
     "jiraKey": "MAH-107",
     "location": "desk-admin",
@@ -143,9 +121,8 @@
     "colors": { "skin": "#F3CFAC", "top": "#F3C3A8", "hair": "#4A3428" },
     "appearance": {
       "hairStyle": "hijab",
-      "hijabColor": "#9CAF94",
       "accessory": "round-glasses",
-      "hat": "none",
+      "hijabColor": "#9CAF94",
       "isLeader": false
     }
   },
@@ -163,11 +140,6 @@
     "targetZone": "santai-sofa-1",
     "deskZone": "santai-sofa-1",
     "colors": { "skin": "#E8B98E", "top": "#23345C", "hair": "#1A140F" },
-    "appearance": {
-      "hairStyle": "client",
-      "accessory": "none",
-      "hat": "none",
-      "isLeader": false
-    }
+    "appearance": { "hairStyle": "client", "accessory": "none", "isLeader": false }
   }
 ]

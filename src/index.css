@@ -1,15 +1,28 @@
 @import "tailwindcss";
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: #2a1f1a;
+  background: #241c17;
+  color: #f5ece3;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .panel {
-  background: rgba(42, 31, 26, 0.72);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 225, 200, 0.12);
+  background: rgba(36, 28, 23, 0.78);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 228, 200, 0.14);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -4,8 +4,8 @@
   "desk-A3": [0, 0, -3],
   "desk-A4": [3, 0, -3],
   "desk-server": [6, 0, -3],
-  "desk-vip": [10, 0, -3],
   "desk-A6": [-9, 0, -3],
+  "desk-vip": [10, 0, -3],
   "desk-admin": [8, 0, 2.5],
 
   "corridor-1": [-6, 0, 1.5],

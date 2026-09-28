@@ -13,11 +13,13 @@ export type CharacterStatus =
   | 'praying'
   | 'eating'
 
+export type GlobalMode = 'normal' | 'pray' | 'lunch' | 'pray-mini'
 export type HairStyle = 'spiky' | 'bob' | 'hijab' | 'cap' | 'neat' | 'client'
 export type Accessory = 'headphone' | 'glasses' | 'round-glasses' | 'none'
 export type Pose = 'sit' | 'stand' | 'walk' | 'pray'
 export type PrayPhase = 'qiyam' | 'ruku' | 'sujud' | 'julus'
 export type Mood = 'normal' | 'sleepy' | 'happy'
+export type CameraPreset = 'office' | 'vip' | 'coffee' | 'santai' | 'mushalla'
 
 export interface CharacterColors {
   skin: string
@@ -28,10 +30,9 @@ export interface CharacterColors {
 export interface Appearance {
   hairStyle: HairStyle
   accessory: Accessory
-  hat: string
+  isLeader: boolean
   hatColor?: string
   hijabColor?: string
-  isLeader: boolean
 }
 
 export interface TeamMember {
@@ -51,12 +52,7 @@ export interface TeamMember {
   appearance: Appearance
 }
 
-export interface ZoneMap {
-  [key: string]: [number, number, number]
-}
-
-export type CameraPreset = 'office' | 'vip' | 'coffee' | 'santai' | 'mushalla'
-export type GlobalMode = 'normal' | 'pray' | 'lunch' | 'pray-mini'
+export type ZoneMap = Record<string, [number, number, number]>
 
 export interface JiraIssue {
   key: string

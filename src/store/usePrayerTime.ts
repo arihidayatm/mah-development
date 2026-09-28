@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import fallback from '../data/prayerFallback.json'
 import type { GlobalMode } from '../lib/types'
-import { minutesOfDay, nowInWIB, parseHHMM } from '../lib/utils'
+import { dayKeyWIB, minutesOfDay, nowWIB, parseHHMM } from '../lib/utils'
 
 interface PrayerTimings {
   Dhuhr: string
@@ -9,8 +9,9 @@ interface PrayerTimings {
   Maghrib?: string
 }
 
-interface PrayerState {
+export interface PrayerState {
   timings: PrayerTimings
+  timingsSource: 'network' | 'cache' | 'fallback'
   loading: boolean
   globalMode: GlobalMode
   simTime: Date
@@ -18,39 +19,29 @@ interface PrayerState {
   muted: boolean
   imamId: string
   simAcak: boolean
-  lastDayKey: string
+  dayKey: string
 
-  refreshMode: () => void
-  fetchTimings: () => Promise<void>
   setSpeed: (s: 1 | 60) => void
   toggleMute: () => void
-  tick: () => void
+  fetchTimings: () => Promise<void>
+  tick: (realDtSeconds: number) => void
+  recomputeMode: () => void
   testAdzan: () => void
   testLunch: () => void
+  resetToNormal: () => void
+  setSimAcak: (v: boolean) => void
 }
 
-const DAY_MS = 86_400_000
+const CANDIDATE_IMAMS = ['bima', 'dedi', 'riko', 'ucup']
 
-function cacheKey(d: Date): string {
-  const { h } = nowInWIB(d)
-  void h
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(d)
-}
-
-function filterName(name: string): string {
-  const n = name.toLowerCase()
-  if (n.includes('dhuhr') || n.includes('dhuhur') || n.includes('zuhr')) return 'Dhuhr'
-  if (n.includes('asr')) return 'Asr'
-  if (n.includes('maghrib')) return 'Maghrib'
-  return name
+const pickName = (raw: Record<string, string>, target: string): string | undefined => {
+  const key = Object.keys(raw).find((k) => k.toLowerCase().includes(target.toLowerCase()))
+  return key ? raw[key].slice(0, 5) : undefined
 }
 
 export const usePrayerTime = create<PrayerState>((set, get) => ({
-  timings: {
-    Dhuhr: fallback.Dhuhr,
-    Asr: fallback.Asr,
-    Maghrib: fallback.Maghrib,
-  },
+  timings: { Dhuhr: fallback.Dhuhr, Asr: fallback.Asr, Maghrib: fallback.Maghrib },
+  timingsSource: 'fallback',
   loading: false,
   globalMode: 'normal',
   simTime: new Date(),
@@ -58,55 +49,23 @@ export const usePrayerTime = create<PrayerState>((set, get) => ({
   muted: true,
   imamId: 'ari',
   simAcak: false,
-  lastDayKey: cacheKey(new Date()),
+  dayKey: dayKeyWIB(new Date()),
 
   setSpeed: (s) => set({ speed: s }),
   toggleMute: () => set((st) => ({ muted: !st.muted })),
+  setSimAcak: (v) => set({ simAcak: v }),
 
-  testAdzan: () => {
-    set({ globalMode: 'pray' })
-    const { muted } = get()
-    if (!muted) playAdzan()
-  },
-
-  testLunch: () => set({ globalMode: 'lunch' }),
-
-  refreshMode: () => {
-    const { simTime, timings, imamId, simAcak } = get()
-    const { h, m } = nowInWIB(simTime)
-    const cur = minutesOfDay(h, m)
-    const asr = parseHHMM(timings.Asr)
-    let mode: GlobalMode = 'normal'
-
-    if (cur >= 12 * 60 && cur < 12 * 60 + 20) mode = 'pray'
-    else if (cur >= 12 * 60 + 20 && cur < 12 * 60 + 45) mode = 'lunch'
-
-    if (cur >= asr && cur < asr + 15) mode = 'pray-mini'
-
-    let nextImam = imamId
-    if (simAcak && Math.random() < 0.2) {
-      const pool = ['bima', 'dedi', 'riko', 'ucup']
-      nextImam = pool[Math.floor(Math.random() * pool.length)]
-    }
-
-    if (mode === 'pray' && get().globalMode !== 'pray') {
-      const { muted } = get()
-      if (!muted) playAdzan()
-    }
-
-    set({ globalMode: mode, imamId: nextImam })
-  },
-
-  fetchTimings: async () => {
-    const dayKey = cacheKey(new Date())
+  async fetchTimings() {
+    const day = dayKeyWIB(new Date())
+    const cacheKey = `mah-prayer-${day}`
     try {
-      const cached = localStorage.getItem(`mah-prayer-${dayKey}`)
+      const cached = localStorage.getItem(cacheKey)
       if (cached) {
-        set({ timings: JSON.parse(cached) as PrayerTimings, lastDayKey: dayKey })
+        set({ timings: JSON.parse(cached), timingsSource: 'cache', dayKey: day })
         return
       }
     } catch {
-      /* ignore */
+      /* localStorage tidak tersedia */
     }
     set({ loading: true })
     try {
@@ -116,31 +75,63 @@ export const usePrayerTime = create<PrayerState>((set, get) => ({
       if (!res.ok) throw new Error(`Aladhan HTTP ${res.status}`)
       const json = (await res.json()) as { data: { timings: Record<string, string> } }
       const raw = json.data.timings
-      const picked: PrayerTimings = { Dhuhr: fallback.Dhuhr, Asr: fallback.Asr, Maghrib: fallback.Maghrib }
-      for (const [k, v] of Object.entries(raw)) {
-        const name = filterName(k)
-        if (name === 'Dhuhr' || name === 'Asr' || name === 'Maghrib') {
-          picked[name] = v.slice(0, 5)
-        }
+      const picked: PrayerTimings = {
+        Dhuhr: pickName(raw, 'dhuhr') ?? pickName(raw, 'zuhr') ?? fallback.Dhuhr,
+        Asr: pickName(raw, 'asr') ?? fallback.Asr,
+        Maghrib: pickName(raw, 'maghrib') ?? fallback.Maghrib,
       }
-      set({ timings: picked, lastDayKey: dayKey, loading: false })
+      set({ timings: picked, timingsSource: 'network', loading: false, dayKey: day })
       try {
-        localStorage.setItem(`mah-prayer-${dayKey}`, JSON.stringify(picked))
+        localStorage.setItem(cacheKey, JSON.stringify(picked))
       } catch {
         /* ignore */
       }
     } catch (e) {
-      console.warn('[prayer] fallback used:', e)
-      set({ loading: false })
+      console.warn('[prayer] pakai fallback:', e)
+      set({ loading: false, timingsSource: 'fallback' })
     }
   },
 
-  tick: () => {
+  recomputeMode() {
+    const { simTime, timings, imamId, simAcak } = get()
+    const { h, m } = nowWIB(simTime)
+    const cur = minutesOfDay(h, m)
+    const asr = parseHHMM(timings.Asr)
+
+    let mode: GlobalMode = 'normal'
+    if (cur >= 12 * 60 && cur < 12 * 60 + 20) mode = 'pray'
+    else if (cur >= 12 * 60 + 20 && cur < 12 * 60 + 45) mode = 'lunch'
+    else if (cur >= 12 * 60 + 45 && cur < 13 * 60) mode = 'normal' // free/chilling
+    if (cur >= asr && cur < asr + 15) mode = 'pray-mini'
+
+    let nextImam = imamId
+    if (simAcak && mode === 'pray' && Math.random() < 0.2) {
+      nextImam = CANDIDATE_IMAMS[Math.floor(Math.random() * CANDIDATE_IMAMS.length)]
+    }
+
+    const enteringPray = mode === 'pray' && get().globalMode !== 'pray'
+    set({ globalMode: mode, imamId: nextImam })
+    if (enteringPray && !get().muted) playAdzan()
+  },
+
+  tick(realDtSeconds) {
     const { speed, simTime } = get()
-    const next = new Date(simTime.getTime() + (speed === 60 ? 10_000 : 0) * 6)
-    const advanced = speed === 60 ? new Date(simTime.getTime() + 60_000) : next
-    set({ simTime: advanced })
-    get().refreshMode()
+    const next = new Date(simTime.getTime() + realDtSeconds * 1000 * speed)
+    set({ simTime: next })
+    get().recomputeMode()
+  },
+
+  testAdzan() {
+    set({ globalMode: 'pray' })
+    if (!get().muted) playAdzan()
+  },
+
+  testLunch() {
+    set({ globalMode: 'lunch' })
+  },
+
+  resetToNormal() {
+    set({ globalMode: 'normal' })
   },
 }))
 
@@ -153,10 +144,10 @@ function playAdzan() {
       audioEl.volume = 0.6
     }
     audioEl.currentTime = 0
-    void audioEl.play().catch(() => {})
+    void audioEl.play().catch(() => {
+      /* butuh gesture user; diabaikan */
+    })
   } catch {
     /* ignore */
   }
 }
-
-void DAY_MS
